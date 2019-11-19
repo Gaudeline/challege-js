@@ -4,7 +4,10 @@ Your name : Gaudeline
 Date : 12/11/219
 Contact information :
 What does this script do ?
-...
+.Comme tu le verras, je suis en archi pls, j'ai tout éssayé, bouquins, tuto, reprendre depuis les bases...Mais même ça n'étais pas assez.
+Je sais qu'on ne pouvait pas copier de code mais c'est la seule chose que j'ai réussi à faire, en corrigeant les erreurs que je voyais.
+Au départ je voulais me servire de son code comme d'une base, pouvoir ajouter les graphiques qui me plaisais et les modofier à ma guise, mais avec toutes mes révisions j'ai été prise par le temps.
+Je te demande pardon bien bas, n'y voit surtout aucun manque de respect et sache que je vais continuer pour arriver a un beau résultat
 */
 
 // Your scripting goes here...
@@ -14,9 +17,7 @@ let h1Tag = document.getElementById("firstHeading");   // récuperation de l'id 
 h1Tag.appendChild(pTag);               // Insertion du <p> dans <h1>
 
 
-///////////////////////////////////////////////////////////
-//              Creation du premier graphique          //
-/////////////////////////////////////////////////////////
+// Premier graph Dynamique
 
 // Récupération du json, creation et mise en forme du graphique
     async function returnGraphicOne(){
@@ -88,11 +89,9 @@ function returnGraphicTwo(){
                 tableHeaders.push(cellsOfHeaders[h].innerHTML); // injection dans le tableau
             }
         }
-    
         for (let i = 1; i < tableRows.length; i++) {
             let cellsOfRow = [...tableRows[i].cells];  // cellules
             let countryData = [];
-            
             for (let j = 1; j < cellsOfRow.length; j++) { // Iteration sur chaque cellule
                 if(j > 1){                              // Itération suite
                     if(cellsOfRow[j].innerText == ":"){ // Replacement des emplacements sans données par 0
@@ -100,23 +99,20 @@ function returnGraphicTwo(){
                     }else{
                         countryData.push(parseFloat((cellsOfRow[j].innerText).replace(",",".")));
                     }
-                    
                 }
             }
-            data[i-1] = {}; 
+            data[i-1] = {};
             data[i-1].dates = tableHeaders;
             data[i-1].country = cellsOfRow[1].innerHTML;
             data[i-1].data = countryData;
         }
         return data;
     }
-    
+
     let dataTableOne = getDataFromHTMLTable("#table1 > tbody > tr")
     console.log(dataTableOne);
-   
-  
+
     // Définition de la structure du svg
-    
     let margin = {top: 20, right: 20, bottom: 50, left: 50};
     let width = 800 - margin.left - margin.right;
     let height = 600 - margin.top - margin.bottom;
@@ -124,8 +120,7 @@ function returnGraphicTwo(){
     // Creation du Graphique a proprement parlé
     function createGraphCrime(showCountry) {
 
-    
-    // Creation du svg   
+    // Creation du svg
     let svgCrime = d3.select('#mw-content-text').insert('svg','#table1')
                                     .attr('width', 900)
                                     .attr('height', 600)
@@ -136,56 +131,37 @@ function returnGraphicTwo(){
                         .attr('width', width)
                         .attr('height', height)
                         .attr('transform', "translate(" + margin.left + ", " + margin.top + ")");
-    
-    
-    
     const xCrime = graphic.append('g')
                         .attr('transform', `translate(0, ${height})`);
     const yCrime = graphic.append('g');
-    
-    
     const x = d3.scaleBand()
                 .domain(dataTableOne[showCountry].dates)
                 .range([0, width])
                 .paddingInner(0.2)
                 .paddingOuter(0.1)
-    
     const y = d3.scaleLinear()
                 .domain([0, (Math.max(...dataTableOne[showCountry].data)*1.2)])
                 .range([height, 0]);
-    
-    
-    
+
     // Définition de l'axe x
     const axeX = d3.axisBottom(x)
-    
     xCrime.call(axeX)
             .style('font-size', '14px')
-            
-            
-    
     xCrime.selectAll('text')
             .attr('transform', 'rotate(-60) translate(0,5)')
             .attr('text-anchor', 'end');
 
-    
-    
     // Définition de l'axe Y
-    
     const axeY = d3.axisLeft(y)
                     .ticks(20);
-    
     yCrime.call(axeY)
             .style('font-size', '13px');
-            
-    
+
         // Définition de la fonction Hover du graphique
-      function mouseOver(d, i) {
+    function mouseOver(d, i) {
         d3.select(this)
-          .style("opacity", 0.8)
-          .attr('fill', 'orange')
-          
-    
+        .style("opacity", 0.8)
+        .attr('fill', 'orange')
         graphic.append('text')
                 .attr('id', `data${d}${i}`)
                 .style('font-weight', 'bold')
@@ -194,17 +170,14 @@ function returnGraphicTwo(){
                 .attr('x', function(){return x(d)+7})
                 .attr('y', this.y.animVal.value-15)
                 .text(dataTableOne[showCountry].data[i])
-                
-          
-      }
+    }
       // définition de la fonction Hover leave du graphique
-      function mouseLeave(d, i) {
+    function mouseLeave(d, i) {
         d3.select(this)
-          .style("opacity", 1)
-          .attr('fill', 'steelblue');
-    
+        .style("opacity", 1)
+        .attr('fill', 'steelblue');
         d3.select(`#data${d}${i}`).remove();
-      } 
+    }
 
       // Ajout des différents éléments dans le graphique
     const rects = graphic.selectAll("rect")
@@ -219,28 +192,24 @@ function returnGraphicTwo(){
                         .attr('y', function(d){return y(d)})
                         .data(dataTableOne[showCountry].dates)
                         .attr('x', function(d){return x(d)});
-}    
-createGraphCrime(1);    
-    
-    
+}
+createGraphCrime(1);
+
     // Creation du DropDown
-    
     let dropdown = d3.select('#mw-content-text').insert("select","#svgCrime")
                                                 .attr('name','countries')
                                                 .attr('id','selectCountry')
                                                 .on('change', switchCountry)
-                                            
                                         dropdown.selectAll("option")
                                                 .data(dataTableOne)
                                                 .enter()
                                                 .append("option")
                                                 .attr("value", function(d,i){return i})
-                                                .text(function(d){return d.country})                                                             
-
-     function switchCountry(){
-     d3.select("#svgCrime").remove();
-     createGraphCrime(this.value);
-     }
+                                                .text(function(d){return d.country})
+    function switchCountry(){
+    d3.select("#svgCrime").remove();
+    createGraphCrime(this.value);
+    }
 }
 returnGraphicTwo();
 
@@ -263,11 +232,9 @@ function returnGraphicTree (){
                     tableHeaders.push(cellsOfHeaders[h].innerHTML); // injection dans le tableau
                 }
             }
-        
             for (let i = 1; i < tableRows.length; i++) {
                 let cellsOfRow = [...tableRows[i].cells];  // cellules
                 let countryData = [];
-                
                 for (let j = 1; j < cellsOfRow.length; j++) { // Iteration sur chaque cellule
                     if(j > 1){                              // Itération suite
                         if(cellsOfRow[j].innerText == ":"){ // Replacement des emplacements sans données par 0
@@ -275,144 +242,121 @@ function returnGraphicTree (){
                         }else{
                             countryData.push(parseFloat((cellsOfRow[j].innerText).replace(",",".")));
                         }
-                        
                     }
                 }
-                data[i-1] = {}; 
+                data[i-1] = {};
                 data[i-1].dates = tableHeaders;
                 data[i-1].country = cellsOfRow[1].innerHTML;
                 data[i-1].data = countryData;
             }
             return data;
         }
-            
-    
     let dataTableTwo = getDataFromHTMLTable("#table2 tr")
     console.log(dataTableTwo);
-
 // Creation du graphique
-
-
     // Creation du Graphique a proprement parlé
     function createGraphHomicides(showCountry) {
-        var width = 550
+        width = 550
         height = 550
         margin = 20
-    
-    
-    var radius = Math.min(width, height) / 2 - margin
-    
-
-    
-    var svg = d3.select("#table2 caption").append("div")
-      .append("svg")
+    radius = Math.min(width, height) / 2 - margin
+    svg = d3.select("#table2 caption").append("div")
+    .append("svg")
         .attr("width", width)
         .attr("height", height)
-      .append("g")
+    .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-    
 
-    
     // Division des couleurs selon les éléments indiqués
-    var color = d3.scaleOrdinal()
-      .domain(d3.entries(dataTableTwo[showCountry].data))
-      .range(["steelblue", "darkorange"])
-    
+    color = d3.scaleOrdinal()
+    .domain(d3.entries(dataTableTwo[showCountry].data))
+    .range(["steelblue", "darkorange"])
+
     // Position des parties du donuts
-    var pie = d3.pie()
-      .sort(null) // Do not sort group by size
-      .value(function(d) {return d.value; })
-    var data_donut = pie(d3.entries(dataTableTwo[showCountry].data))
-    
+    pie = d3.pie()
+    .sort(null) // Do not sort group by size
+    .value(function(d) {return d.value; })
+    data_donut = pie(d3.entries(dataTableTwo[showCountry].data))
+
     //Creation des arcs
-    var arc = d3.arc()
+    arc = d3.arc()
       .innerRadius(radius * 0.5)         // Taille du trou central
       .outerRadius(radius * 0.8)
-    
-
-    var outerArc = d3.arc()
+    outerArc = d3.arc()
       .innerRadius(radius * 0.9)
       .outerRadius(radius * 0.9)
-    
+
   // Creation du donut et des parts
     svg
-      .selectAll('allSlices')
-      .data(data_donut)
-      .enter()
-      .append('path')
-      .attr('d', arc)
-      .attr('fill', function(d){ return(color(d.data.key)) })
-      .attr("stroke", "white")
-      .style("stroke-width", "2px")
-
-    
-
-    svg
-      .selectAll('allPolylines')
-      .data(data_donut)
-      .enter()
-      .append('polyline')
+    .selectAll('allSlices')
+    .data(data_donut)
+    .enter()
+    .append('path')
+    .attr('d', arc)
+    .attr('fill', function(d){ return(color(d.data.key)) })
+    .attr("stroke", "white")
+    .style("stroke-width", "2px")
+svg
+    .selectAll('allPolylines')
+    .data(data_donut)
+    .enter()
+    .append('polyline')
         .attr("stroke", "black")
         .style("fill", "none")
         .attr("stroke-width", 1)
         .attr('points', function(d) {
-          var posA = arc.centroid(d) 
-          var posB = outerArc.centroid(d) 
-          var posC = outerArc.centroid(d); 
-          var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2 
-          posC[0] = radius * 0.95 * (midangle < Math.PI ? 1 : -1); 
-          return [posA, posB, posC]
+        posA = arc.centroid(d)
+        posB = outerArc.centroid(d)
+        posC = outerArc.centroid(d);
+        midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+          posC[0] = radius * 0.95 * (midangle < Math.PI ? 1 : -1);
+        return [posA, posB, posC]
         })
-    
-
 
     //Ajout des lignes et des labels
     svg
-      .selectAll('allLabels')
-      .data(data_donut)
-      .enter()
-      .append('text')
-      .text( function(d) { console.log(d.data.value) ; return d.data.value } )
+    .selectAll('allLabels')
+    .data(data_donut)
+    .enter()
+    .append('text')
+    .text( function(d) { console.log(d.data.value) ; return d.data.value } )
         .attr('transform', function(d) {
-            var pos = outerArc.centroid(d);
-            var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+            pos = outerArc.centroid(d);
+            midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
             pos[0] = radius * 0.99 * (midangle < Math.PI ? 1 : -1);
             return 'translate(' + pos + ')';
         })
         .style('text-anchor', function(d) {
-            var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+            midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
             return (midangle < Math.PI ? 'start' : 'end')
         })
-// ajout des étiquettes 
+// ajout des étiquettes
 
-var legendItemSize = 18
-var legendSpacing = 4
-
-var legend = svg
-  .selectAll('.legend')
-  .data(dataTableTwo[showCountry].dates)
-  .enter()
-  .append('g')
-  .attr('class', 'legend')
-  .attr('transform', (d, i) => {
-    var height = legendItemSize + legendSpacing
-    var offset = height * color.domain().length / 2
-    var x = legendItemSize * -2;
-    var y = (i * height) - offset
+legendItemSize = 18
+legendSpacing = 4
+legend = svg
+.selectAll('.legend')
+.data(dataTableTwo[showCountry].dates)
+.enter()
+.append('g')
+.attr('class', 'legend')
+.attr('transform', (d, i) => {
+    height = legendItemSize + legendSpacing
+    offset = height * color.domain().length / 2
+    x = legendItemSize * -2;
+    y = (i * height) - offset
     return `translate(${x}, ${y})`
-  })
-
+})
 legend
-  .append('rect')
-  .attr('width', legendItemSize)
-  .attr('height', legendItemSize)
-  .style('fill', color);
-
+.append('rect')
+.attr('width', legendItemSize)
+.attr('height', legendItemSize)
+.style('fill', color);
 legend
-  .append('text')
-  .attr('x', legendItemSize + legendSpacing)
-  .attr('y', legendItemSize - legendSpacing)
-  .text((d) => d)
+.append('text')
+.attr('x', legendItemSize + legendSpacing)
+.attr('y', legendItemSize - legendSpacing)
+.text((d) => d)
     }
 createGraphHomicides(1);
 // creation du dropdown
@@ -427,7 +371,7 @@ dropdown.selectAll("option")
 .enter()
 .append("option")
 .attr("value", function(d,i){return i})
-.text(function(d){return d.country})                                                             
+.text(function(d){return d.country})
 
 function switchCountry(){
 d3.select('#table2 caption').select("svg").remove();
